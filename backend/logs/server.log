@@ -1,0 +1,146 @@
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+October 08, 2026 - 12:08:58
+Django version 6.1.1, using settings 'config.settings.local'
+Starting WSGI development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.1/howto/deployment/
+Internal Server Error: /api/v1/health/
+Traceback (most recent call last):
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/urls/base.py", line 81, in reverse
+    extra, resolver = resolver.namespace_dict[ns]
+                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^
+KeyError: 'djdt'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 56, in inner
+    response = get_response(request)
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/debug_toolbar/middleware.py", line 160, in __call__
+    return self._postprocess(request, response, toolbar)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/debug_toolbar/middleware.py", line 204, in _postprocess
+    rendered = toolbar.render_toolbar()
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/debug_toolbar/toolbar.py", line 118, in render_toolbar
+    return render_to_string("debug_toolbar/base.html", context)
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/template/base.py", line 174, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/test/utils.py", line 113, in instrumented_test_render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/template/base.py", line 1107, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/template/base.py", line 1068, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/template/defaulttags.py", line 333, in render
+    return nodelist.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/template/base.py", line 1107, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/template/base.py", line 1068, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/template/defaulttags.py", line 511, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/.venv/lib/python3.14/site-packages/django/urls/base.py", line 92, in reverse
+    raise NoReverseMatch("%s is not a registered namespace" % key)
+django.urls.exceptions.NoReverseMatch: 'djdt' is not a registered namespace
+[08/Oct/2026 12:09:17] "GET /api/v1/health/ HTTP/1.1" 500 152392
+/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/config/settings/local.py changed, reloading.
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+October 08, 2026 - 12:09:36
+Django version 6.1.1, using settings 'config.settings.local'
+Starting WSGI development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.1/howto/deployment/
+[08/Oct/2026 12:09:38] "GET /api/v1/health/ HTTP/1.1" 200 160
+[08/Oct/2026 12:10:00] "POST /api/v1/auth/login/ HTTP/1.1" 200 1043
+[08/Oct/2026 12:10:17] "POST /api/v1/auth/login/ HTTP/1.1" 200 1043
+[08/Oct/2026 12:10:17] "GET /api/v1/hr/employees/ HTTP/1.1" 200 7511
+/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/apps/hr_payroll/serializers/hr_serializers.py changed, reloading.
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+October 08, 2026 - 12:10:52
+Django version 6.1.1, using settings 'config.settings.local'
+Starting WSGI development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.1/howto/deployment/
+/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/apps/hr_payroll/views/hr_views.py changed, reloading.
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+October 08, 2026 - 12:11:09
+Django version 6.1.1, using settings 'config.settings.local'
+Starting WSGI development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.1/howto/deployment/
+[08/Oct/2026 12:11:22] "POST /api/v1/auth/login/ HTTP/1.1" 200 1043
+[08/Oct/2026 12:11:23] "GET /api/v1/hr/employees/?search=Catherine HTTP/1.1" 200 1513
+[08/Oct/2026 12:11:36] "POST /api/v1/auth/login/ HTTP/1.1" 200 1043
+Bad Request: /api/v1/hr/employees/
+[08/Oct/2026 12:11:36] "POST /api/v1/hr/employees/ HTTP/1.1" 400 160
+/home/danitech/Desktop/Projects/Apex Logistics & Supply Chain Ltd/apex_enterprise/backend/apps/hr_payroll/serializers/hr_serializers.py changed, reloading.
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+October 08, 2026 - 12:11:46
+Django version 6.1.1, using settings 'config.settings.local'
+Starting WSGI development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.1/howto/deployment/
+[08/Oct/2026 12:11:57] "POST /api/v1/auth/login/ HTTP/1.1" 200 1043
+[08/Oct/2026 12:11:58] "POST /api/v1/hr/employees/ HTTP/1.1" 201 1392
+[08/Oct/2026 12:12:16] "POST /api/v1/auth/login/ HTTP/1.1" 200 1043
+[08/Oct/2026 12:12:16] "DELETE /api/v1/hr/employees/b65c897d-aaee-458d-93a9-5581636328ed/ HTTP/1.1" 204 0
+Not Found: /api/v1/api/v1/auth/login/
+Not Found: /api/v1/api/v1/auth/login/
+[08/Oct/2026 12:14:13] "POST /api/v1/api/v1/auth/login/ HTTP/1.1" 404 3291
+[08/Oct/2026 12:14:13] "POST /api/v1/api/v1/auth/login/ HTTP/1.1" 404 3291
+Not Found: /api/v1/api/v1/hr/employees/
+[08/Oct/2026 12:17:10] "GET /api/v1/api/v1/hr/employees/ HTTP/1.1" 404 3296
+Not Found: /api/v1/api/v1/hr/employees/
+[08/Oct/2026 12:17:10] "GET /api/v1/api/v1/hr/employees/ HTTP/1.1" 404 3296
+Not Found: /api/v1/api/v1/hr/employees/
+[08/Oct/2026 12:17:10] "GET /api/v1/api/v1/hr/employees/ HTTP/1.1" 404 3296
+[08/Oct/2026 12:17:52] "GET /api/v1/health/ HTTP/1.1" 200 160
+Not Found: /api/v1/api/v1/hr/employees/
+[08/Oct/2026 12:19:20] "GET /api/v1/api/v1/hr/employees/ HTTP/1.1" 404 3296
+[08/Oct/2026 12:19:43] "GET /api/v1/health/ HTTP/1.1" 200 160
+[08/Oct/2026 12:19:57] "POST /api/v1/auth/login/ HTTP/1.1" 200 1043
+Not Found: /api/v1/api/v1/hr/employees/emp-4/
+[08/Oct/2026 12:23:10] "DELETE /api/v1/api/v1/hr/employees/emp-4/ HTTP/1.1" 404 3317
+[08/Oct/2026 12:25:37] "POST /api/v1/auth/login/ HTTP/1.1" 200 1043
+[08/Oct/2026 12:25:37] "POST /api/v1/auth/login/ HTTP/1.1" 200 1043
+[08/Oct/2026 12:25:52] "GET /api/v1/hr/employees/ HTTP/1.1" 200 9853
+[08/Oct/2026 12:25:52] "GET /api/v1/hr/employees/ HTTP/1.1" 200 9853
+[08/Oct/2026 12:25:52] "GET /api/v1/hr/employees/ HTTP/1.1" 200 9853

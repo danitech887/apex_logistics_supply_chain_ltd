@@ -1,0 +1,24 @@
+# Core Framework & API
+Django>=5.0.0,<5.2.0
+djangorestframework>=3.15.0,<3.16.0
+django-cors-headers>=4.3.1,<5.0.0
+django-filter>=24.2,<25.0
+
+# Database Adapter (PostgreSQL 16 Multi-Schema)
+psycopg[binary]>=3.1.18,<3.2.0
+
+# Redis & Celery Message Queue
+redis>=5.0.3,<5.1.0
+celery[redis]>=5.4.0,<5.5.0
+
+# Cryptography, Tokens & Security
+PyJWT>=2.8.0,<3.0.0
+cryptography>=42.0.5,<43.0.0
+bcrypt>=4.1.2,<5.0.0
+
+# PDF & Document Generation (Payslips & Waybills)
+reportlab>=4.1.0,<4.2.0
+
+# Utilities
+python-dotenv>=1.0.1,<2.0.0
+requests>=2.31.0,<3.0.0

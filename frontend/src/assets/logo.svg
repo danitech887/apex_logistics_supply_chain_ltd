@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" fill="none">
+  <!-- APEX Logistics & Supply Chain Official Vector Logo -->
+  <defs>
+    <linearGradient id="apexOrange" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF9900" />
+      <stop offset="100%" stop-color="#FFB300" />
+    </linearGradient>
+  </defs>
+
+  <!-- Letter 'A' Left & Right Diagonal Legs in Deep Navy -->
+  <!-- Left Leg -->
+  <path d="M 125 35 L 75 185 L 20 185 L 105 35 Z" fill="#0B1B30" />
+  <!-- Right Leg -->
+  <path d="M 125 35 L 210 185 L 160 185 L 115 88 Z" fill="#0B1B30" />
+
+  <!-- Signature Forward Arrow penetrating the 'A' crossbar -->
+  <polygon points="55,108 175,108 175,90 228,126 175,162 175,144 55,144" fill="url(#apexOrange)" />
+
+  <!-- Letter 'P' -->
+  <path d="M 245 42 L 320 42 C 348 42 368 56 368 84 C 368 112 348 126 320 126 L 278 126 L 278 185 L 245 185 Z M 278 68 L 278 100 L 315 100 C 328 100 335 94 335 84 C 335 74 328 68 315 68 Z" fill="#0B1B30" />
+
+  <!-- Letter 'E' -->
+  <path d="M 388 42 L 485 42 L 485 70 L 421 70 L 421 99 L 476 99 L 476 127 L 421 127 L 421 157 L 488 157 L 488 185 L 388 185 Z" fill="#0B1B30" />
+
+  <!-- Letter 'X' -->
+  <path d="M 500 42 L 536 42 L 575 106 L 614 42 L 650 42 L 595 120 L 654 185 L 617 185 L 575 134 L 533 185 L 496 185 L 555 120 Z" fill="#0B1B30" />
+
+  <!-- Subtitle: LOGISTICS & SUPPLY CHAIN -->
+  <text x="248" y="218" font-family="'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="800" fill="#64748B" letter-spacing="11">LOGISTICS &amp; SUPPLY CHAIN</text>
+</svg>

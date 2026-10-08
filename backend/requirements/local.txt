@@ -1,0 +1,15 @@
+-r base.txt
+
+# Development & Debugging
+django-debug-toolbar>=4.3.0
+ipython>=8.22.2
+
+# Testing
+pytest>=8.1.1
+pytest-django>=4.8.0
+factory-boy>=3.3.0
+
+# Code Quality & Linting
+flake8>=7.0.0
+black>=24.3.0
+isort>=5.13.2

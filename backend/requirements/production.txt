@@ -1,0 +1,8 @@
+-r base.txt
+
+# Production WSGI / ASGI Servers
+gunicorn>=21.2.0
+uvicorn[standard]>=0.28.0
+
+# Monitoring & Error Tracking
+sentry-sdk>=1.43.0

@@ -1,0 +1,4 @@
+# ==============================================================================
+# Apex Logistics & Supply Chain Ltd - Monorepo Backend Requirements Pointer
+# ==============================================================================
+-r backend/requirements.txt

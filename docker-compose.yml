@@ -1,0 +1,145 @@
+version: '3.9'
+
+services:
+  # ============================================================================
+  # 1. PostgreSQL 16 Database with Multiple Namespace Schemas
+  # ============================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: apex_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-apex_logistics_db}
+      POSTGRES_USER: ${POSTGRES_USER:-apex_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-apex_secure_pass_2026}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../schema.sql:/docker-entrypoint-initdb.d/01-init-schemas.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-apex_admin} -d ${POSTGRES_DB:-apex_logistics_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # 2. Redis 7 In-Memory Cache & Celery Message Broker
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: apex_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # 3. Django Core Backend (Modular Monolith)
+  # ============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: apex_backend
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+      - backend_media:/app/media
+      - backend_static:/app/staticfiles
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.example
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+      - POSTGRES_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ============================================================================
+  # 4. Celery Asynchronous Task Worker
+  # ============================================================================
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: apex_celery_worker
+    restart: unless-stopped
+    command: celery -A config worker --loglevel=info -c 4
+    volumes:
+      - ./backend:/app
+      - backend_media:/app/media
+    env_file:
+      - .env.example
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+      - POSTGRES_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ============================================================================
+  # 5. Celery Beat Scheduler (Periodic Maintenance & Payroll Triggers)
+  # ============================================================================
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: apex_celery_beat
+    restart: unless-stopped
+    command: celery -A config beat --loglevel=info
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env.example
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+      - POSTGRES_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ============================================================================
+  # 6. React SPA Frontend (Vite Development Server / Portals)
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: apex_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  redisdata:
+  backend_media:
+  backend_static:
