@@ -59,10 +59,6 @@ apex_logistics_supply_chain_ltd/
 
 The application is pre-configured and verified against an external Neon Serverless PostgreSQL database with multi-schema isolation:
 
-- **Connection URL**:
-  ```text
-  postgresql://neondb_owner:npg_rZ14vDQOJpEy@ep-young-frog-b4395nwt-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-  ```
 - **Automatic Schema Initialization**: The Django startup signal automatically verifies and executes `CREATE SCHEMA IF NOT EXISTS` for all five isolated schemas (`auth_core`, `hr_payroll`, `finance`, `fleet_ops`, `warehouse_crm`) upon connection.
 - **PgBouncer Pooler Support**: `dj-database-url` and `config/settings/base.py` dynamically configure connection parameters and set the Postgres `search_path` without conflicting with PgBouncer startup restrictions.
 
