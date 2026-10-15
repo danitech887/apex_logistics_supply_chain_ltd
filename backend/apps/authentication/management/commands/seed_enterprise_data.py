@@ -6,6 +6,7 @@ from apps.authentication.models import Tenant, Role, User, UserRole
 from apps.hr_payroll.models import Employee, LeaveRequest
 from apps.finance.models import Account, JournalEntry, JournalLine, Invoice
 from apps.fleet_ops.models import Vehicle, Trip, FuelLog
+from apps.warehouse_crm.models import CorporateClient, InventoryItem, Waybill
 
 class Command(BaseCommand):
     help = 'Seeds initial tenant, roles, demo users, and employees into PostgreSQL database'
@@ -33,6 +34,10 @@ class Command(BaseCommand):
             ('FLEET_MANAGER', 'Fleet operations, telemetry, dispatch, and maintenance'),
             ('ACCOUNTANT', 'Financial general ledger, invoicing, and accounts'),
             ('DRIVER', 'Transit operations, driver trips, and employee self-service'),
+            ('WAREHOUSE_SUPERVISOR', 'Warehouse operations, weighbridge tare/gross verification, and stock control'),
+            ('PROCUREMENT_OFFICER', 'Vendor contracts, LPO generation, fuel/parts supplier sourcing, and requisitions'),
+            ('SALES_MANAGER', 'Commercial freight accounts, rate card negotiations, sales pipeline, and freight contracts'),
+            ('CLIENT', 'External B2B client consignee shipment tracking, POD access, and freight billing'),
         ]
         roles_dict = {}
         for code, desc in roles_data:
@@ -148,6 +153,66 @@ class Command(BaseCommand):
                 'base_salary': Decimal('85000.00'),
                 'hourly_rate': Decimal('420.00'),
                 'date_of_hire': '2022-08-15',
+            },
+            {
+                'first_name': 'Kevin',
+                'last_name': 'Wafula',
+                'email': 'k.wafula@apexlogistics.co.ke',
+                'phone': '+254 722 445 566',
+                'role': 'WAREHOUSE_SUPERVISOR',
+                'staff_number': 'EMP-055',
+                'national_id': '32145678',
+                'tax_pin': 'A005678912W',
+                'department': 'Warehouse & Inventory Control',
+                'designation': 'Warehouse Operations Supervisor',
+                'base_salary': Decimal('145000.00'),
+                'hourly_rate': Decimal('0.00'),
+                'date_of_hire': '2021-09-01',
+            },
+            {
+                'first_name': 'Amina',
+                'last_name': 'Abdi',
+                'email': 'a.abdi@apexlogistics.co.ke',
+                'phone': '+254 713 667 788',
+                'role': 'PROCUREMENT_OFFICER',
+                'staff_number': 'EMP-061',
+                'national_id': '34567890',
+                'tax_pin': 'A006789012A',
+                'department': 'Procurement & Vendor Management',
+                'designation': 'Head of Procurement & Sourcing',
+                'base_salary': Decimal('195000.00'),
+                'hourly_rate': Decimal('0.00'),
+                'date_of_hire': '2021-04-15',
+            },
+            {
+                'first_name': 'Brian',
+                'last_name': 'Otieno',
+                'email': 'b.otieno@apexlogistics.co.ke',
+                'phone': '+254 725 889 900',
+                'role': 'SALES_MANAGER',
+                'staff_number': 'EMP-018',
+                'national_id': '29876543',
+                'tax_pin': 'A007890123O',
+                'department': 'Sales & Business Development',
+                'designation': 'Commercial Accounts Manager',
+                'base_salary': Decimal('175000.00'),
+                'hourly_rate': Decimal('0.00'),
+                'date_of_hire': '2020-11-01',
+            },
+            {
+                'first_name': 'James',
+                'last_name': 'Kariuki',
+                'email': 'unilever.logistics@apexlogistics.co.ke',
+                'phone': '+254 720 123 999',
+                'role': 'CLIENT',
+                'staff_number': 'CLIENT-001',
+                'national_id': '21345678',
+                'tax_pin': 'P051123456Z',
+                'department': 'Unilever Kenya Logistics Desk',
+                'designation': 'Corporate Cargo Consignee Lead',
+                'base_salary': Decimal('0.00'),
+                'hourly_rate': Decimal('0.00'),
+                'date_of_hire': '2022-01-01',
             },
         ]
 
@@ -569,5 +634,177 @@ class Command(BaseCommand):
                     )
                     if created:
                         self.stdout.write(f"Created Fuel Log: {fl_obj.receipt_number} - {fl_obj.liters_filled}L ({fl_obj.station_name})")
+
+        # 8. Seed Corporate Clients, Inventory Items & Waybills
+        clients_data = [
+            {
+                'company_name': 'Unilever Kenya Ltd',
+                'contact_person': 'James Kariuki',
+                'email': 'unilever.logistics@apexlogistics.co.ke',
+                'phone': '+254 720 123 999',
+                'tax_pin': 'P051123456Z',
+                'credit_limit': Decimal('2500000.00'),
+                'outstanding_balance': Decimal('450000.00'),
+                'payment_terms_days': 30,
+            },
+            {
+                'company_name': 'Bidco Africa Ltd',
+                'contact_person': 'Rajesh Shah',
+                'email': 'r.shah@bidco-africa.com',
+                'phone': '+254 733 987 654',
+                'tax_pin': 'P051234567A',
+                'credit_limit': Decimal('3000000.00'),
+                'outstanding_balance': Decimal('1120000.00'),
+                'payment_terms_days': 45,
+            },
+            {
+                'company_name': 'Brookside Dairy Ltd',
+                'contact_person': 'Mercy Chebet',
+                'email': 'm.chebet@brookside.co.ke',
+                'phone': '+254 721 456 789',
+                'tax_pin': 'P051345678B',
+                'credit_limit': Decimal('1800000.00'),
+                'outstanding_balance': Decimal('280000.00'),
+                'payment_terms_days': 30,
+            },
+            {
+                'company_name': 'Bamburi Cement Ltd',
+                'contact_person': 'George Muriuki',
+                'email': 'g.muriuki@bamburi.lafarge.com',
+                'phone': '+254 722 654 321',
+                'tax_pin': 'P051456789C',
+                'credit_limit': Decimal('4000000.00'),
+                'outstanding_balance': Decimal('890000.00'),
+                'payment_terms_days': 60,
+            },
+        ]
+        client_objs = {}
+        for c in clients_data:
+            c_obj, _ = CorporateClient.objects.get_or_create(
+                tenant=tenant,
+                tax_pin=c['tax_pin'],
+                defaults=c
+            )
+            client_objs[c['company_name']] = c_obj
+
+        items_data = [
+            {
+                'sku': 'TIRE-315-80R22.5',
+                'description': 'Michelin X Multiway 3D Heavy Steering Tire (315/80 R22.5)',
+                'warehouse_location': 'Nairobi Central ICD Hub - Bay 4A',
+                'quantity_on_hand': 48,
+                'unit_weight_kg': Decimal('68.50'),
+                'reorder_level': 12,
+            },
+            {
+                'sku': 'TIRE-12.00R20',
+                'description': 'Bridgestone M840 Heavy Drive Axle Commercial Tire (12.00 R20)',
+                'warehouse_location': 'Mombasa Port Yard - Bay 2B',
+                'quantity_on_hand': 36,
+                'unit_weight_kg': Decimal('74.00'),
+                'reorder_level': 10,
+            },
+            {
+                'sku': 'OIL-15W40-200L',
+                'description': 'Shell Rimula R4 X 15W-40 Heavy Duty Diesel Engine Oil 200L Drum',
+                'warehouse_location': 'Workshop Lubricants Stores - Bay L1',
+                'quantity_on_hand': 14,
+                'unit_weight_kg': Decimal('195.00'),
+                'reorder_level': 5,
+            },
+            {
+                'sku': 'BRK-CHAMBER-T24',
+                'description': 'Knorr-Bremse Type 24/30 Spring Brake Actuator Chamber',
+                'warehouse_location': 'Workshop Spares Rack 12',
+                'quantity_on_hand': 22,
+                'unit_weight_kg': Decimal('9.80'),
+                'reorder_level': 8,
+            },
+            {
+                'sku': 'PAL-DET-500KG',
+                'description': 'Unilever OMO Auto Concentrated Powder Bulk Pallet (500kg)',
+                'warehouse_location': 'Warehouse Ambient Bay C3',
+                'quantity_on_hand': 85,
+                'unit_weight_kg': Decimal('520.00'),
+                'reorder_level': 20,
+            },
+            {
+                'sku': 'AGRI-CORN-50KG',
+                'description': 'Bidco Industrial Refined Corn Starch 50kg Heavy Export Sacks',
+                'warehouse_location': 'Warehouse Dry Silo Wing 1',
+                'quantity_on_hand': 320,
+                'unit_weight_kg': Decimal('50.00'),
+                'reorder_level': 50,
+            },
+            {
+                'sku': 'FLTR-FUEL-FS197',
+                'description': 'Fleetguard FS19732 High-Efficiency Fuel Water Separator Filter',
+                'warehouse_location': 'Workshop Spares Rack 04',
+                'quantity_on_hand': 64,
+                'unit_weight_kg': Decimal('1.20'),
+                'reorder_level': 15,
+            },
+        ]
+        for itm in items_data:
+            InventoryItem.objects.get_or_create(
+                tenant=tenant,
+                sku=itm['sku'],
+                defaults=itm
+            )
+
+        trip_list = list(Trip.objects.filter(tenant=tenant))
+        trip_a = trip_list[0] if len(trip_list) > 0 else None
+        trip_b = trip_list[1] if len(trip_list) > 1 else None
+
+        waybills_data = [
+            {
+                'waybill_number': 'WB-2026-0891',
+                'client': client_objs.get('Unilever Kenya Ltd'),
+                'trip': trip_a,
+                'tare_weight_kg': Decimal('14200.00'),
+                'gross_weight_kg': Decimal('38400.00'),
+                'net_weight_kg': Decimal('24200.00'),
+                'tare_verified': True,
+                'status': 'DISPATCHED',
+            },
+            {
+                'waybill_number': 'WB-2026-0892',
+                'client': client_objs.get('Bidco Africa Ltd'),
+                'trip': trip_b,
+                'tare_weight_kg': Decimal('15100.00'),
+                'gross_weight_kg': Decimal('41100.00'),
+                'net_weight_kg': Decimal('26000.00'),
+                'tare_verified': True,
+                'recipient_signature': 'R. Shah - Bidco Port Agent',
+                'status': 'DELIVERED',
+            },
+            {
+                'waybill_number': 'WB-2026-0893',
+                'client': client_objs.get('Brookside Dairy Ltd'),
+                'trip': None,
+                'tare_weight_kg': Decimal('13800.00'),
+                'gross_weight_kg': Decimal('28300.00'),
+                'net_weight_kg': Decimal('14500.00'),
+                'tare_verified': True,
+                'status': 'TARE_VERIFIED',
+            },
+            {
+                'waybill_number': 'WB-2026-0894',
+                'client': client_objs.get('Bamburi Cement Ltd'),
+                'trip': None,
+                'tare_weight_kg': Decimal('14600.00'),
+                'gross_weight_kg': Decimal('0.00'),
+                'net_weight_kg': Decimal('0.00'),
+                'tare_verified': False,
+                'status': 'GENERATED',
+            },
+        ]
+        for wb in waybills_data:
+            if wb['client']:
+                Waybill.objects.get_or_create(
+                    tenant=tenant,
+                    waybill_number=wb['waybill_number'],
+                    defaults=wb
+                )
 
         self.stdout.write(self.style.SUCCESS("All enterprise seed data successfully written!"))

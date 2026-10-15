@@ -95,4 +95,23 @@ class FuelLogViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return FuelLog.objects.filter(trip__tenant=self.request.user.tenant_id).select_related('trip')
+        user = self.request.user
+        qs = FuelLog.objects.filter(
+            trip__tenant=user.tenant_id
+        ).select_related('trip', 'trip__vehicle', 'trip__driver__user')
+        if user.has_role('DRIVER') and not user.has_role('FLEET_MANAGER') and not user.has_role('SUPER_ADMIN'):
+            return qs.filter(trip__driver__user=user)
+        return qs
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        trip = serializer.validated_data.get('trip')
+        if trip and trip.tenant_id != user.tenant_id:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Cannot log fuel for a trip in another tenant.")
+        fuel_log = serializer.save()
+        if fuel_log.odometer_reading and fuel_log.trip and fuel_log.trip.vehicle:
+            vehicle = fuel_log.trip.vehicle
+            if fuel_log.odometer_reading > vehicle.current_odometer:
+                vehicle.current_odometer = fuel_log.odometer_reading
+                vehicle.save(update_fields=['current_odometer'])

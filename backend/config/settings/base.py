@@ -4,6 +4,7 @@ Django base settings for Apex Logistics Enterprise modular monolith.
 import os
 from pathlib import Path
 from datetime import timedelta
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -18,6 +19,19 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',') if host.strip()]
+RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME and RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin.strip()
+]
+if RENDER_EXTERNAL_HOSTNAME:
+    csrf_render = f"https://{RENDER_EXTERNAL_HOSTNAME}"
+    if csrf_render not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(csrf_render)
 
 # Application definition
 DJANGO_APPS = [
@@ -47,6 +61,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -77,6 +92,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
 # Database Configuration with Multi-Schema PostgreSQL Support
+DATABASE_URL = os.getenv('DATABASE_URL')
 POSTGRES_DB = os.getenv('POSTGRES_DB', 'apex_logistics_db')
 POSTGRES_USER = os.getenv('POSTGRES_USER', 'postgres')
 POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD', 'Daenicel9620@')
@@ -95,6 +111,18 @@ if os.getenv('USE_SQLITE', 'False').lower() in ('true', '1', 'yes'):
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+elif DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+    DATABASES['default'].setdefault('OPTIONS', {})
+    # Avoid passing unsupported -c search_path startup parameter to PgBouncer / Neon poolers
+    if '-pooler' not in DATABASES['default'].get('HOST', ''):
+        DATABASES['default']['OPTIONS']['options'] = f'-c search_path={SEARCH_PATH}'
 else:
     DATABASES = {
         'default': {
@@ -128,8 +156,9 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -169,9 +198,15 @@ JWT_REFRESH_TOKEN_LIFETIME = timedelta(
 
 # Celery Configuration
 REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/1')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/2')
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+# Automatically execute tasks in-process if Celery broker is not configured
+if not CELERY_BROKER_URL or os.getenv('CELERY_TASK_ALWAYS_EAGER', 'False').lower() in ('true', '1', 'yes'):
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True
+

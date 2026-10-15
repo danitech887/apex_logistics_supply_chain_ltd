@@ -208,6 +208,7 @@ export const EmployeeDirectory = () => {
       first_name: formData.firstName.trim(),
       last_name: formData.lastName.trim(),
       email: formData.email.trim().toLowerCase(),
+      password: formData.password ? formData.password.trim() : 'Apex@2026',
       phone_number: formData.phoneNumber.trim(),
       staff_number: formData.staffNumber.trim().toUpperCase(),
       national_id: formData.nationalId.trim(),
@@ -228,9 +229,8 @@ export const EmployeeDirectory = () => {
       setEmployees((prev) => [newEmp, ...prev]);
       showSuccess({
         title: 'Employee Onboarded Successfully',
-        message: `Staff member ${newEmp.name} (${newEmp.staffNumber}) is now active in ${newEmp.department}.`,
+        message: `Staff member ${newEmp.name} (${newEmp.staffNumber}) and login credentials were created.`,
       });
-      setIsOnboardModalOpen(false);
       return newEmp;
     } catch (err) {
       const errorMsg =

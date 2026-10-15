@@ -86,6 +86,70 @@ export const DEMO_USERS = [
     accentColor: 'purple',
     badgeText: 'Executive & RBAC',
   },
+  {
+    id: 'usr-wh-1',
+    email: 'k.wafula@apexlogistics.co.ke',
+    name: 'Kevin Wafula',
+    roles: ['WAREHOUSE_SUPERVISOR'],
+    department: 'Warehouse & Inventory Control',
+    staffNumber: 'EMP-055',
+    avatar: 'KW',
+    tenant: { id: 'tenant-1', company_name: 'Apex Logistics & Supply Chain Ltd', subdomain: 'apex-hq' },
+    targetPortal: 'warehouse',
+    portalTitle: 'Warehouse, Stock & Inbound Cargo Desk',
+    portalDescription: 'Consignment intake, weighbridge gross/tare logging, and pallet inventory',
+    databaseSchema: 'warehouse_crm',
+    accentColor: 'cyan',
+    badgeText: 'Warehouse & Stock Desk',
+  },
+  {
+    id: 'usr-proc-1',
+    email: 'a.abdi@apexlogistics.co.ke',
+    name: 'Amina Abdi',
+    roles: ['PROCUREMENT_OFFICER'],
+    department: 'Procurement & Vendor Management',
+    staffNumber: 'EMP-061',
+    avatar: 'AA',
+    tenant: { id: 'tenant-1', company_name: 'Apex Logistics & Supply Chain Ltd', subdomain: 'apex-hq' },
+    targetPortal: 'procurement',
+    portalTitle: 'Procurement, LPO & Vendor Management',
+    portalDescription: 'Vendor supplier contracts, Local Purchase Orders (LPOs), fuel tenders, and parts requisitions',
+    databaseSchema: 'finance & procurement',
+    accentColor: 'teal',
+    badgeText: 'Procurement & LPO Desk',
+  },
+  {
+    id: 'usr-crm-1',
+    email: 'b.otieno@apexlogistics.co.ke',
+    name: 'Brian Otieno',
+    roles: ['SALES_MANAGER'],
+    department: 'Sales & Business Development',
+    staffNumber: 'EMP-018',
+    avatar: 'BO',
+    tenant: { id: 'tenant-1', company_name: 'Apex Logistics & Supply Chain Ltd', subdomain: 'apex-hq' },
+    targetPortal: 'crm',
+    portalTitle: 'CRM & Freight Rate Quotations Desk',
+    portalDescription: 'Corporate haulage contracts, rate negotiations, contract quotas, and sales pipeline',
+    databaseSchema: 'warehouse_crm',
+    accentColor: 'violet',
+    badgeText: 'Commercial CRM Desk',
+  },
+  {
+    id: 'usr-client-1',
+    email: 'unilever.logistics@apexlogistics.co.ke',
+    name: 'James Kariuki',
+    roles: ['CLIENT'],
+    department: 'Unilever Kenya Logistics Desk',
+    staffNumber: 'CLIENT-001',
+    avatar: 'JK',
+    tenant: { id: 'tenant-1', company_name: 'Apex Logistics & Supply Chain Ltd', subdomain: 'apex-hq' },
+    targetPortal: 'client_portal',
+    portalTitle: 'Client Shipment Tracking & Digital POD Portal',
+    portalDescription: 'B2B client consignment tracking, electronic waybills, digital PODs, and freight billing',
+    databaseSchema: 'warehouse_crm & fleet_ops (Restricted)',
+    accentColor: 'emerald',
+    badgeText: 'B2B Consignee Portal',
+  },
 ];
 
 export const AuthProvider = ({ children }) => {
@@ -100,6 +164,29 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState(null);
+  const [quickAccessProfiles, setQuickAccessProfiles] = useState(DEMO_USERS);
+  const [isProfilesFromDb, setIsProfilesFromDb] = useState(false);
+
+  // Fetch live department profiles directly from PostgreSQL database
+  useEffect(() => {
+    let isMounted = true;
+    const fetchProfiles = async () => {
+      try {
+        const res = await apiClient.get(ENDPOINTS.AUTH.QUICK_ACCESS);
+        if (isMounted && Array.isArray(res.data) && res.data.length > 0) {
+          setQuickAccessProfiles(res.data);
+          setIsProfilesFromDb(true);
+        }
+      } catch (err) {
+        console.warn('Could not load live quick-access profiles from PostgreSQL, using fallback:', err);
+        if (isMounted) setIsProfilesFromDb(false);
+      }
+    };
+    fetchProfiles();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Active portal is strictly derived from user's authenticated RBAC roles
   const activePortal = user ? getAuthorizedPortal(user.roles) : null;
@@ -158,7 +245,9 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (err) {
       // 2. Mock / Demo fallback for local development & demonstration
-      const matched = DEMO_USERS.find(
+      const matched = quickAccessProfiles.find(
+        (u) => u.email.toLowerCase() === email.trim().toLowerCase()
+      ) || DEMO_USERS.find(
         (u) => u.email.toLowerCase() === email.trim().toLowerCase()
       );
 
@@ -181,7 +270,12 @@ export const AuthProvider = ({ children }) => {
    * Fast-track demo login for departmental testing and verification with real JWT tokens
    */
   const loginAsDemoUser = async (userId) => {
-    const persona = DEMO_USERS.find((u) => u.id === userId) || DEMO_USERS[0];
+    const persona =
+      quickAccessProfiles.find((u) => u.id === userId || u.email === userId) ||
+      DEMO_USERS.find((u) => u.id === userId || u.email === userId) ||
+      quickAccessProfiles[0] ||
+      DEMO_USERS[0];
+
     setLoading(true);
     setAuthError(null);
 
@@ -196,7 +290,7 @@ export const AuthProvider = ({ children }) => {
       if (refresh_token) localStorage.setItem('apex_refresh_token', refresh_token);
       setUser({ ...persona, ...userData });
     } catch (err) {
-      console.warn('Backend login fallback to local persona:', err);
+      console.warn('Backend login fallback to persona:', err);
       setUser(persona);
     } finally {
       setLoading(false);
@@ -229,7 +323,9 @@ export const AuthProvider = ({ children }) => {
     loading,
     authError,
     setAuthError,
-    demoUsers: DEMO_USERS,
+    demoUsers: quickAccessProfiles,
+    quickAccessProfiles,
+    isProfilesFromDb,
     login,
     loginAsDemoUser,
     logout,

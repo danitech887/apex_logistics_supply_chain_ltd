@@ -19,6 +19,14 @@ import {
   Building,
   PanelLeftClose,
   PanelLeftOpen,
+  X,
+  Boxes,
+  ShoppingBag,
+  Briefcase,
+  Globe,
+  PackageCheck,
+  Calculator,
+  MapPin,
 } from 'lucide-react';
 
 export const Sidebar = ({
@@ -26,6 +34,8 @@ export const Sidebar = ({
   onNavigate,
   isCollapsed = false,
   setIsCollapsed,
+  isMobileOpen = false,
+  onCloseMobile,
 }) => {
   const { activePortal, user } = useAuth();
 
@@ -60,6 +70,26 @@ export const Sidebar = ({
       { id: 'apply_leave', label: 'Apply for Leave', icon: CalendarDays },
       { id: 'punch_clock', label: 'Terminal Punch Clock', icon: Clock },
     ],
+    warehouse: [
+      { id: 'warehouse_dashboard', label: 'Warehouse & Stock Desk', icon: Boxes },
+      { id: 'inventory', label: 'Stock & Pallet Inventory', icon: PackageCheck },
+      { id: 'weighbridge', label: 'Weighbridge & Inbound', icon: Scale },
+    ],
+    procurement: [
+      { id: 'procurement_dashboard', label: 'Procurement & LPO Desk', icon: ShoppingBag },
+      { id: 'lpo_orders', label: 'Local Purchase Orders', icon: FileSpreadsheet },
+      { id: 'vendor_contracts', label: 'Suppliers & Contracts', icon: Building },
+    ],
+    crm: [
+      { id: 'crm_dashboard', label: 'Commercial CRM Desk', icon: Briefcase },
+      { id: 'clients', label: 'Corporate Accounts', icon: Building },
+      { id: 'quotations', label: 'Rate Cards & Quotes', icon: Calculator },
+    ],
+    client_portal: [
+      { id: 'client_dashboard', label: 'Consignee Tracking Desk', icon: Globe },
+      { id: 'shipments', label: 'Active Shipments & POD', icon: Truck },
+      { id: 'billing', label: 'Invoices & Statements', icon: Receipt },
+    ],
   };
 
   const currentNav = portalNavConfigs[activePortal] || portalNavConfigs.admin;
@@ -71,11 +101,13 @@ export const Sidebar = ({
   };
 
   return (
-    <aside
-      className={`bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 h-full select-none transition-all duration-300 ease-in-out relative z-30 ${
-        isCollapsed ? 'w-20' : 'w-64'
-      }`}
-    >
+    <>
+      {/* Desktop Navigation Sidebar (Hidden on mobile) */}
+      <aside
+        className={`hidden md:flex bg-slate-900 border-r border-slate-800 flex-col shrink-0 h-full select-none transition-all duration-300 ease-in-out relative z-30 ${
+          isCollapsed ? 'w-20' : 'w-64'
+        }`}
+      >
       {/* Workspace Department Tag / Header */}
       <div
         className={`border-b border-slate-800/90 transition-all duration-300 ${
@@ -282,7 +314,110 @@ export const Sidebar = ({
           )}
         </div>
       )}
-    </aside>
+      </aside>
+
+      {/* Mobile Navigation Drawer & Backdrop (Active on mobile view) */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Backdrop Overlay */}
+          <div
+            onClick={onCloseMobile}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs animate-fade-in"
+            aria-hidden="true"
+          />
+
+          {/* Drawer Menu Panel */}
+          <aside className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-slate-900 border-r border-slate-800 flex flex-col shadow-2xl z-50 animate-slide-right select-none h-full">
+            {/* Mobile Header with Department Tag and Close Button */}
+            <div className="p-4 border-b border-slate-800/90 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-400">
+                  Dedicated Portal
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                    <Lock className="w-2.5 h-2.5 text-emerald-400" />
+                    Isolated
+                  </span>
+                  {onCloseMobile && (
+                    <button
+                      onClick={onCloseMobile}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                      title="Close navigation menu"
+                      aria-label="Close menu"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <h2 className="text-base font-bold text-white leading-tight">
+                {portalMeta.shortName}
+              </h2>
+
+              <div className="flex items-center space-x-1.5 text-xs text-slate-400">
+                <span>Role:</span>
+                <span className="font-mono font-bold text-indigo-300">
+                  {user?.roles?.[0] || 'AUTHORIZED'}
+                </span>
+              </div>
+            </div>
+
+            {/* Mobile Nav Modules List */}
+            <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
+              <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                Department Modules
+              </p>
+              {currentNav.map((item) => {
+                const Icon = item.icon;
+                const isActive = activePage === item.id;
+
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      onNavigate(item.id);
+                      if (onCloseMobile) onCloseMobile();
+                    }}
+                    className={`w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/70'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* Mobile Security Footer Card */}
+            <div className="p-3 border-t border-slate-800/80">
+              <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-[11px] space-y-2">
+                <div className="flex items-center justify-between text-slate-300 font-bold">
+                  <div className="flex items-center space-x-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Secure Workstation</span>
+                  </div>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                </div>
+
+                <div className="bg-slate-900/80 px-2.5 py-1.5 rounded-xl border border-slate-800 text-[11px] text-slate-300 flex items-center justify-between">
+                  <span className="text-slate-400">Hub:</span>
+                  <span className="font-semibold text-white">Nairobi Central Operations</span>
+                </div>
+
+                <p className="text-[10px] text-slate-400 leading-relaxed">
+                  Departmental isolation active. Unauthorized cross-department actions are restricted.
+                </p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
+    </>
   );
 };
 

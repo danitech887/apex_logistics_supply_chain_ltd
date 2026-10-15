@@ -13,28 +13,62 @@ class EmployeeSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
     last_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
     email = serializers.EmailField(write_only=True, required=False)
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     phone_number = serializers.CharField(write_only=True, required=False, allow_blank=True)
     role = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    staff_number = serializers.CharField(required=False, allow_blank=True)
+    login_details = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Employee
         fields = [
             'id', 'tenant', 'user', 'user_details', 'full_name',
-            'first_name', 'last_name', 'email', 'phone_number', 'role',
+            'first_name', 'last_name', 'email', 'password', 'phone_number', 'role',
             'staff_number', 'national_id', 'tax_pin', 'department',
             'designation', 'base_salary', 'hourly_rate', 'date_of_hire',
-            'is_active', 'created_at'
+            'is_active', 'login_details', 'created_at'
         ]
         read_only_fields = ['id', 'tenant', 'created_at']
 
+    def get_login_details(self, obj):
+        user = obj.user
+        if not user:
+            return None
+        roles = list(user.roles.values_list('code', flat=True))
+        role = roles[0] if roles else 'EMPLOYEE'
+        return {
+            'email': user.email,
+            'initial_password': getattr(self, '_initial_password', 'Apex@2026'),
+            'staff_number': obj.staff_number,
+            'assigned_role': role,
+            'full_name': user.full_name,
+        }
+
     def create(self, validated_data):
+        import re
         first_name = validated_data.pop('first_name', '').strip()
         last_name = validated_data.pop('last_name', '').strip()
         email = validated_data.pop('email', None)
+        raw_password = validated_data.pop('password', '').strip() or 'Apex@2026'
+        self._initial_password = raw_password
         phone_number = validated_data.pop('phone_number', '').strip()
         role_code = validated_data.pop('role', '').strip()
         tenant = validated_data.get('tenant')
         user = validated_data.get('user')
+
+        # Automatic sequential staff number generation if omitted or blank
+        staff_number = validated_data.get('staff_number', '').strip()
+        if not staff_number or staff_number.upper() == 'AUTO':
+            existing = Employee.objects.filter(tenant=tenant)
+            max_num = 0
+            for emp in existing:
+                m = re.search(r'EMP-(\d+)', emp.staff_number)
+                if m:
+                    num = int(m.group(1))
+                    if num > max_num:
+                        max_num = num
+            next_num = max_num + 1 if max_num > 0 else 1
+            validated_data['staff_number'] = f"EMP-{next_num:03d}"
 
         if not user:
             if not email:
@@ -57,9 +91,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
                     user.last_name = last_name
                 if phone_number:
                     user.phone_number = phone_number
+                if raw_password and raw_password != 'Apex@2026':
+                    user.set_password(raw_password)
                 user.save()
             else:
-                user.set_password('password123')
+                user.set_password(raw_password)
                 user.save()
 
             if role_code:
@@ -68,7 +104,27 @@ class EmployeeSerializer(serializers.ModelSerializer):
                     UserRole.objects.get_or_create(user=user, role=role)
             else:
                 dept = validated_data.get('department', '').lower()
-                assigned_code = 'DRIVER' if ('transit' in dept or 'fleet' in dept) else ('HR_OFFICER' if ('hr' in dept or 'human' in dept) else ('ACCOUNTANT' if 'fin' in dept else 'DRIVER'))
+                if 'warehouse' in dept or 'inventory' in dept:
+                    assigned_code = 'WAREHOUSE_SUPERVISOR'
+                elif 'procure' in dept or 'vendor' in dept or 'sourc' in dept:
+                    assigned_code = 'PROCUREMENT_OFFICER'
+                elif 'sale' in dept or 'crm' in dept or 'commercial' in dept:
+                    assigned_code = 'SALES_MANAGER'
+                elif 'client' in dept or 'consignee' in dept:
+                    assigned_code = 'CLIENT'
+                elif 'fleet' in dept or 'dispatch' in dept:
+                    assigned_code = 'FLEET_MANAGER'
+                elif 'driver' in dept or 'transit' in dept:
+                    assigned_code = 'DRIVER'
+                elif 'fin' in dept or 'account' in dept:
+                    assigned_code = 'ACCOUNTANT'
+                elif 'hr' in dept or 'human' in dept or 'people' in dept:
+                    assigned_code = 'HR_OFFICER'
+                elif 'admin' in dept or 'exec' in dept:
+                    assigned_code = 'SUPER_ADMIN'
+                else:
+                    assigned_code = 'DRIVER'
+
                 role = Role.objects.filter(code=assigned_code).first()
                 if role:
                     UserRole.objects.get_or_create(user=user, role=role)
@@ -148,6 +204,11 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
     designation = serializers.CharField(source='employee.designation', read_only=True)
     phone_number = serializers.CharField(source='employee.user.phone_number', read_only=True)
     approved_by_name = serializers.CharField(source='approved_by.full_name', read_only=True, allow_null=True)
+    tenant = serializers.PrimaryKeyRelatedField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        allow_null=True
+    )
     employee = serializers.PrimaryKeyRelatedField(
         queryset=Employee.objects.all(),
         required=False,

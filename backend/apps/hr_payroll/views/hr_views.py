@@ -52,7 +52,34 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         tenant = getattr(self.request.user, 'tenant', None)
         if not tenant:
             tenant = Tenant.objects.first()
-        serializer.save(tenant=tenant)
+        emp = serializer.save(tenant=tenant)
+        # Automatically recalculate current active payroll run so new employee appears immediately
+        if not emp.staff_number.startswith('CLIENT'):
+            open_runs = PayrollRun.objects.filter(tenant=tenant, status__in=['DRAFT', 'APPROVED']).order_by('-period_end')
+            current_run = open_runs.first()
+            if current_run:
+                try:
+                    bulk_run_payroll_generation(str(current_run.id))
+                except Exception:
+                    pass
+
+    @action(detail=False, methods=['get'])
+    def next_staff_number(self, request):
+        """
+        Determines the next sequential staff number for the tenant (e.g. EMP-072).
+        """
+        import re
+        tenant = getattr(request.user, 'tenant', None) or Tenant.objects.first()
+        employees = Employee.objects.filter(tenant=tenant)
+        max_num = 0
+        for emp in employees:
+            m = re.search(r'EMP-(\d+)', emp.staff_number)
+            if m:
+                num = int(m.group(1))
+                if num > max_num:
+                    max_num = num
+        next_num = max_num + 1 if max_num > 0 else 1
+        return Response({'next_staff_number': f"EMP-{next_num:03d}"}, status=status.HTTP_200_OK)
 
 
 class LeaveRequestViewSet(viewsets.ModelViewSet):

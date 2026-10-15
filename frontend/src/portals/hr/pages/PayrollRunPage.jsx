@@ -564,12 +564,27 @@ export const PayrollRunPage = () => {
         </div>
       </div>
 
+      {/* Workforce Payslips Header & Info Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
+        <div className="flex items-center space-x-2">
+          <span className="text-sm font-black text-slate-900">
+            Workforce Payroll Ledger
+          </span>
+          <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-2.5 py-0.5 rounded-full">
+            {payslips.length} Employee Payslips Generated
+          </span>
+        </div>
+        <p className="text-[11px] text-slate-500">
+          Showing all registered employees for the active cycle. New staff can be synced via <strong>Recalculate Pay Run</strong>.
+        </p>
+      </div>
+
       {/* Payslips Table with Live Search */}
       <DataTable
         columns={columns}
         data={payslips}
         searchPlaceholder="Live filter payslips by staff #, name, or department..."
-        pageSize={8}
+        pageSize={25}
         isLoading={loading}
       />
 

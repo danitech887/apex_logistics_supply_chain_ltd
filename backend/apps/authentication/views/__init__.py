@@ -5,6 +5,13 @@ from .auth_views import (
     UserProfileView,
     PasswordRotationView,
     TenantListView,
+    QuickAccessProfilesView,
+)
+from .executive_views import (
+    ExecutiveOverviewView,
+    AdminUsersView,
+    AdminUserDetailView,
+    AdminRolesView,
 )
 
 __all__ = [
@@ -14,4 +21,9 @@ __all__ = [
     'UserProfileView',
     'PasswordRotationView',
     'TenantListView',
+    'QuickAccessProfilesView',
+    'ExecutiveOverviewView',
+    'AdminUsersView',
+    'AdminUserDetailView',
+    'AdminRolesView',
 ]

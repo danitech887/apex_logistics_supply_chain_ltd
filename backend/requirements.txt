@@ -15,6 +15,7 @@ django-filter
 # 2. Database Adapter (PostgreSQL 16 & Multi-Schema Namespace Support)
 # ------------------------------------------------------------------------------
 psycopg[binary]
+dj-database-url>=2.1.0
 
 # ------------------------------------------------------------------------------
 # 3. Authentication, Security & Cryptography
@@ -35,10 +36,11 @@ redis
 reportlab
 
 # ------------------------------------------------------------------------------
-# 6. Production WSGI / ASGI Application Servers
+# 6. Production WSGI / ASGI Application Servers & Static Files
 # ------------------------------------------------------------------------------
 gunicorn
 uvicorn[standard]
+whitenoise[brotli]>=6.6.0
 
 # ------------------------------------------------------------------------------
 # 7. Environment & Cross-Service Utilities

@@ -1,8 +1,10 @@
 -r base.txt
 
-# Production WSGI / ASGI Servers
+# Production WSGI / ASGI Servers & Static Files
 gunicorn>=21.2.0
 uvicorn[standard]>=0.28.0
+whitenoise[brotli]>=6.6.0
+dj-database-url>=2.1.0
 
 # Monitoring & Error Tracking
 sentry-sdk>=1.43.0

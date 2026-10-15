@@ -259,8 +259,12 @@ export const InvoiceBuilder = ({
             </label>
             <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
               <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-xs">
-                  APX
+                <div className="h-9 w-9 rounded-xl bg-white p-1 border border-slate-200/90 shadow-2xs flex items-center justify-center shrink-0">
+                  <img
+                    src="/logo.png"
+                    alt="Apex Logistics"
+                    className="h-full w-auto object-contain"
+                  />
                 </div>
                 <div>
                   <span className="font-bold text-slate-900 block">

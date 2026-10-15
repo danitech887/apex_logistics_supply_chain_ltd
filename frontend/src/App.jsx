@@ -15,6 +15,7 @@ import { LeaveManagementPage } from './portals/hr/pages/LeaveManagementPage';
 
 import { DispatchBoard } from './portals/fleet/pages/DispatchBoard';
 import { FleetStatusPage } from './portals/fleet/pages/FleetStatusPage';
+import { FuelStationLogs } from './portals/fleet/pages/FuelStationLogs';
 
 import { ChartOfAccounts } from './portals/finance/pages/ChartOfAccounts';
 import { JournalEntries } from './portals/finance/pages/JournalEntries';
@@ -24,7 +25,23 @@ import { InvoiceList } from './portals/finance/pages/InvoiceList';
 import { ESSDashboard } from './portals/ess/pages/ESSDashboard';
 import { MyPayslips } from './portals/ess/pages/MyPayslips';
 import { ApplyLeave } from './portals/ess/pages/ApplyLeave';
+import { TerminalPunchClockPage } from './portals/ess/pages/TerminalPunchClockPage';
 import { PunchClock } from './portals/ess/components/PunchClock';
+
+import { WarehouseDashboard } from './portals/warehouse/pages/WarehouseDashboard';
+import { StockPalletInventoryPage } from './portals/warehouse/pages/StockPalletInventoryPage';
+import { WeighbridgeInboundPage } from './portals/warehouse/pages/WeighbridgeInboundPage';
+import { ProcurementDashboard } from './portals/procurement/pages/ProcurementDashboard';
+import { LpoOrdersPage } from './portals/procurement/pages/LpoOrdersPage';
+import { VendorContractsPage } from './portals/procurement/pages/VendorContractsPage';
+
+import { CRMDashboard } from './portals/crm/pages/CRMDashboard';
+import { CorporateClientsPage } from './portals/crm/pages/CorporateClientsPage';
+import { FreightQuotationsPage } from './portals/crm/pages/FreightQuotationsPage';
+
+import { ClientPortalDashboard } from './portals/client/pages/ClientPortalDashboard';
+import { ClientShipmentsPage } from './portals/client/pages/ClientShipmentsPage';
+import { ClientBillingPage } from './portals/client/pages/ClientBillingPage';
 
 export const App = () => {
   const { isAuthenticated, activePortal } = useAuth();
@@ -36,6 +53,10 @@ export const App = () => {
     fleet: 'dispatch',
     finance: 'invoices',
     ess: 'ess_dashboard',
+    warehouse: 'warehouse_dashboard',
+    procurement: 'procurement_dashboard',
+    crm: 'crm_dashboard',
+    client_portal: 'client_dashboard',
   };
 
   const [activePage, setActivePage] = useState(
@@ -80,12 +101,25 @@ export const App = () => {
     }
   };
 
-  // Keyboard shortcut: Ctrl+B / Cmd+B to toggle sidebar
+  // Mobile sidebar drawer state
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const toggleMobileNav = () => setIsMobileNavOpen((prev) => !prev);
+  const closeMobileNav = () => setIsMobileNavOpen(false);
+
+  // Close mobile nav on route/portal change
+  useEffect(() => {
+    setIsMobileNavOpen(false);
+  }, [activePage, activePortal]);
+
+  // Keyboard shortcut: Ctrl+B / Cmd+B to toggle sidebar, Esc to close mobile nav
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
         e.preventDefault();
         toggleSidebar();
+      }
+      if (e.key === 'Escape') {
+        setIsMobileNavOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -116,7 +150,8 @@ export const App = () => {
         return <PayrollRunPage />;
 
       case 'fleet':
-        if (activePage === 'vehicles' || activePage === 'fuel') return <FleetStatusPage />;
+        if (activePage === 'vehicles') return <FleetStatusPage />;
+        if (activePage === 'fuel') return <FuelStationLogs />;
         return <DispatchBoard />;
 
       case 'finance':
@@ -128,14 +163,28 @@ export const App = () => {
       case 'ess':
         if (activePage === 'my_payslips') return <MyPayslips />;
         if (activePage === 'apply_leave') return <ApplyLeave />;
-        if (activePage === 'punch_clock') {
-          return (
-            <div className="max-w-md mx-auto py-8">
-              <PunchClock />
-            </div>
-          );
-        }
+        if (activePage === 'punch_clock') return <TerminalPunchClockPage onNavigate={setActivePage} />;
         return <ESSDashboard onNavigate={setActivePage} />;
+
+      case 'warehouse':
+        if (activePage === 'inventory') return <StockPalletInventoryPage onNavigate={setActivePage} />;
+        if (activePage === 'weighbridge') return <WeighbridgeInboundPage onNavigate={setActivePage} />;
+        return <WarehouseDashboard activeSubSection={activePage} onNavigate={setActivePage} />;
+
+      case 'procurement':
+        if (activePage === 'lpo_orders') return <LpoOrdersPage onNavigate={setActivePage} />;
+        if (activePage === 'vendor_contracts') return <VendorContractsPage onNavigate={setActivePage} />;
+        return <ProcurementDashboard activeSubSection={activePage} onNavigate={setActivePage} />;
+
+      case 'crm':
+        if (activePage === 'clients') return <CorporateClientsPage onNavigate={setActivePage} />;
+        if (activePage === 'quotations') return <FreightQuotationsPage onNavigate={setActivePage} />;
+        return <CRMDashboard activeSubSection={activePage} onNavigate={setActivePage} />;
+
+      case 'client_portal':
+        if (activePage === 'shipments') return <ClientShipmentsPage onNavigate={setActivePage} />;
+        if (activePage === 'billing') return <ClientBillingPage onNavigate={setActivePage} />;
+        return <ClientPortalDashboard activeSubSection={activePage} onNavigate={setActivePage} />;
 
       default:
         return <LoginPage />;
@@ -147,6 +196,8 @@ export const App = () => {
       <TopNav
         isSidebarCollapsed={isSidebarCollapsed}
         onToggleSidebar={toggleSidebar}
+        isMobileNavOpen={isMobileNavOpen}
+        onToggleMobileNav={toggleMobileNav}
       />
       <div className="flex-1 flex overflow-hidden min-h-0 relative">
         <Sidebar
@@ -154,6 +205,8 @@ export const App = () => {
           onNavigate={setActivePage}
           isCollapsed={isSidebarCollapsed}
           setIsCollapsed={handleSetSidebarCollapsed}
+          isMobileOpen={isMobileNavOpen}
+          onCloseMobile={closeMobileNav}
         />
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-50/60 min-h-0">
           <div className="max-w-7xl mx-auto">

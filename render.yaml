@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: apex-logistics-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 3"
+    healthCheckPath: /api/v1/health/
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_rZ14vDQOJpEy@ep-young-frog-b4395nwt-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: "True"
+      - key: SECURE_SSL_REDIRECT
+        value: "False"

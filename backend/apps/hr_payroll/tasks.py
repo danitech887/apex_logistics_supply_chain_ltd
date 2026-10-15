@@ -46,7 +46,10 @@ def bulk_run_payroll_generation(payroll_run_id):
 
     try:
         run = PayrollRun.objects.get(id=payroll_run_id)
-        employees = Employee.objects.filter(tenant=run.tenant, is_active=True)
+        employees = Employee.objects.filter(
+            tenant=run.tenant,
+            is_active=True
+        ).exclude(staff_number__startswith='CLIENT').exclude(base_salary__lte=Decimal('0.00'))
 
         total_gross = Decimal('0.00')
         total_net = Decimal('0.00')

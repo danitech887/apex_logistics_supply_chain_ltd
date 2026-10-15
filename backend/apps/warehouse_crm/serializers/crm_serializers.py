@@ -12,7 +12,7 @@ class CorporateClientSerializer(serializers.ModelSerializer):
             'tax_pin', 'credit_limit', 'outstanding_balance', 'available_credit',
             'payment_terms_days', 'is_active', 'created_at'
         ]
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'tenant', 'created_at']
 
 
 class InventoryItemSerializer(serializers.ModelSerializer):
@@ -22,7 +22,7 @@ class InventoryItemSerializer(serializers.ModelSerializer):
             'id', 'tenant', 'sku', 'description', 'warehouse_location',
             'quantity_on_hand', 'unit_weight_kg', 'reorder_level', 'created_at'
         ]
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'tenant', 'created_at']
 
 
 class WaybillSerializer(serializers.ModelSerializer):
@@ -35,7 +35,7 @@ class WaybillSerializer(serializers.ModelSerializer):
             'tare_weight_kg', 'gross_weight_kg', 'net_weight_kg', 'tare_verified',
             'recipient_signature', 'status', 'created_at'
         ]
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'tenant', 'created_at']
 
 
 class WeighbridgeVerificationSerializer(serializers.Serializer):
