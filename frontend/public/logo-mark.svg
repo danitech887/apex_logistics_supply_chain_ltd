@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- APEX Logistics Iconic 'A' Arrow Mark -->
+  <defs>
+    <linearGradient id="apexOrangeMark" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF9900" />
+      <stop offset="100%" stop-color="#FFB300" />
+    </linearGradient>
+  </defs>
+
+  <!-- Letter 'A' Left & Right Diagonal Legs in Deep Navy -->
+  <!-- Left Leg -->
+  <path d="M 100 20 L 58 175 L 14 175 L 84 20 Z" fill="#0B1B30" />
+  <!-- Right Leg -->
+  <path d="M 100 20 L 170 175 L 128 175 L 92 68 Z" fill="#0B1B30" />
+
+  <!-- Signature Forward Arrow penetrating the 'A' crossbar -->
+  <polygon points="40,94 140,94 140,78 186,110 140,142 140,126 40,126" fill="url(#apexOrangeMark)" />
+</svg>

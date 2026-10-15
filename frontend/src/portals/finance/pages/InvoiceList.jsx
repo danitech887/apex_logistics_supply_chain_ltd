@@ -589,7 +589,7 @@ export const InvoiceList = () => {
               <div className="flex items-start justify-between border-b border-slate-200 pb-6">
                 <div>
                   <img
-                    src="/src/assets/logo.png"
+                    src="/logo.png"
                     alt="Apex Logistics & Supply Chain Ltd"
                     className="h-12 w-auto object-contain mb-2"
                   />

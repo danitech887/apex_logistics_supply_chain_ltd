@@ -63,7 +63,7 @@ export const TopNav = ({
 
         <div className="flex items-center space-x-3 shrink-0">
           <img
-            src="/src/assets/logo.png"
+            src="/logo.png"
             alt="Apex Logistics & Supply Chain Ltd"
             className="h-9 sm:h-10 w-auto object-contain max-w-[150px] sm:max-w-[200px]"
           />

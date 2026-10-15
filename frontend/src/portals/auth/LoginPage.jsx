@@ -89,7 +89,7 @@ export const LoginPage = () => {
           {/* Official High-Resolution Logo */}
           <div className="bg-white/95 rounded-2xl p-4 sm:p-5 shadow-2xl border border-white/20 w-fit backdrop-blur-sm">
             <img
-              src="/src/assets/logo.png"
+              src="/logo.png"
               alt="Apex Logistics & Supply Chain Ltd"
               className="h-14 sm:h-16 w-auto object-contain"
             />
