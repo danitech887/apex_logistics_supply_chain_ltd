@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { setupAxiosTelemetry } from '../utils/nexisTelemetry';
 import { ENDPOINTS, API_BASE_URL } from './endpoints';
 
 const apiClient = axios.create({
@@ -8,6 +9,9 @@ const apiClient = axios.create({
   },
   timeout: 15000,
 });
+
+// Telemetry: stream API calls to Nexis
+setupAxiosTelemetry(apiClient);
 
 // Request Interceptor: Injects Active Bearer Token & normalizes URL
 apiClient.interceptors.request.use(

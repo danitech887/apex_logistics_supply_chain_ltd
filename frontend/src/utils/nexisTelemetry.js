@@ -1,0 +1,148 @@
+import axios from "axios";
+
+// Public Nexis Tunnel URL (or environment variable VITE_NEXIS_URL)
+const NEXIS_INGEST_URL =
+  import.meta.env.VITE_NEXIS_URL || "https://salty-breads-talk.loca.lt/api/v1/telemetry/events";
+
+/**
+ * Sends a telemetry event to the Nexis engine via the public tunnel or local backend.
+ * Uses fire-and-forget so user experience in Apex Logistics is never affected.
+ */
+export function sendToNexis(level = "INFO", tag = "User.Action", message = "", metadata = {}) {
+  try {
+    fetch(NEXIS_INGEST_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Bypass-Tunnel-Reminder": "true",
+      },
+      body: JSON.stringify({
+        system_id: "apex-logistics-ingress",
+        software_id: "apex-logistics",
+        level: level,
+        tag: tag,
+        message: message,
+        metadata: metadata,
+        timestamp: new Date().toISOString(),
+      }),
+    }).catch(() => {
+      // Ignore network failures if tunnel or backend is offline
+    });
+  } catch (e) {
+    // Fail silently in production
+  }
+}
+
+/**
+ * Attaches request and response interceptors to an Axios instance.
+ * Automatically logs endpoint, HTTP status, and roundtrip latency to Nexis.
+ */
+export function setupAxiosTelemetry(axiosInstance = axios) {
+  if (!axiosInstance || !axiosInstance.interceptors) return;
+
+  axiosInstance.interceptors.request.use((config) => {
+    config.metadata = { startTime: Date.now() };
+    return config;
+  });
+
+  axiosInstance.interceptors.response.use(
+    (response) => {
+      try {
+        const elapsed = Date.now() - (response.config.metadata?.startTime || Date.now());
+        const user = JSON.parse(localStorage.getItem("apex_user") || localStorage.getItem("user") || "{}");
+        const userEmail = user.email || user.username || user.name || "Authenticated User";
+        const method = response.config.method?.toUpperCase() || "GET";
+        const url = response.config.url || "";
+
+        sendToNexis(
+          "INFO",
+          "User.API",
+          `[${userEmail}] ${method} ${url} -> ${response.status} (${elapsed}ms)`,
+          { status: response.status, elapsed, method, url }
+        );
+      } catch (err) {}
+      return response;
+    },
+    (error) => {
+      try {
+        const user = JSON.parse(localStorage.getItem("apex_user") || localStorage.getItem("user") || "{}");
+        const userEmail = user.email || user.username || user.name || "User";
+        const method = error.config?.method?.toUpperCase() || "REQ";
+        const url = error.config?.url || "endpoint";
+        const status = error.response?.status || "NET_ERR";
+
+        sendToNexis(
+          "ERROR",
+          "User.Error",
+          `[${userEmail}] ${method} ${url} failed (${status}): ${error.message}`,
+          { status, method, url, error: error.message }
+        );
+      } catch (err) {}
+      return Promise.reject(error);
+    }
+  );
+}
+
+/**
+ * Intercepts client-side navigation (history.pushState, popstate, links)
+ * so every page and portal navigation is recorded in real time in Nexis.
+ */
+export function initNavigationTelemetry() {
+  if (typeof window === "undefined" || !window.history) return;
+
+  // Intercept history.pushState (router navigation)
+  const originalPushState = window.history.pushState;
+  window.history.pushState = function (...args) {
+    originalPushState.apply(this, args);
+    try {
+      const path = window.location.pathname + window.location.search;
+      const user = JSON.parse(localStorage.getItem("apex_user") || localStorage.getItem("user") || "{}");
+      const userEmail = user.email || user.username || user.name || "Guest";
+      sendToNexis("INFO", "User.Nav", `[${userEmail}] Navigated to ${path}`);
+    } catch (e) {}
+  };
+
+  // Intercept back / forward buttons
+  window.addEventListener("popstate", () => {
+    try {
+      const path = window.location.pathname + window.location.search;
+      sendToNexis("INFO", "User.Nav", `Navigated (popstate) to ${path}`);
+    } catch (e) {}
+  });
+
+  // Log initial session start
+  try {
+    const currentPath = window.location.pathname || "/";
+    sendToNexis("INFO", "User.Session", `Active Apex Logistics session initialized at ${currentPath}`);
+  } catch (e) {}
+}
+
+/**
+ * Catches unhandled browser exceptions and promise rejections.
+ */
+export function initGlobalErrorLogging() {
+  if (typeof window === "undefined") return;
+
+  window.addEventListener("error", (event) => {
+    sendToNexis(
+      "ERROR",
+      "UI.Crash",
+      `Unhandled UI Error: ${event.message} at ${event.filename || "app"}:${event.lineno || 0}`,
+      { stack: event.error?.stack, filename: event.filename, lineno: event.lineno }
+    );
+  });
+
+  window.addEventListener("unhandledrejection", (event) => {
+    sendToNexis(
+      "ERROR",
+      "Promise.Reject",
+      `Unhandled Promise Rejection: ${event.reason?.message || event.reason}`,
+      { reason: String(event.reason) }
+    );
+  });
+}
+
+// Auto-initialize on import
+setupAxiosTelemetry(axios);
+initNavigationTelemetry();
+initGlobalErrorLogging();
