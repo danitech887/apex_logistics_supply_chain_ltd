@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Public Nexis Tunnel URL (or environment variable VITE_NEXIS_URL)
 const NEXIS_INGEST_URL =
-  import.meta.env.VITE_NEXIS_URL || "https://salty-breads-talk.loca.lt/api/v1/telemetry/events";
+  import.meta.env.VITE_NEXIS_URL || "https://thirty-peaches-prove.loca.lt/api/v1/telemetry/events";
 
 /**
  * Sends a telemetry event to the Nexis engine via the public tunnel or local backend.
