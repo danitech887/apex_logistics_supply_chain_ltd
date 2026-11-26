@@ -4,7 +4,7 @@ Performing system checks...
 System check identified no issues (0 silenced).
 October 08, 2026 - 12:08:58
 Django version 6.1.1, using settings 'config.settings.local'
-Starting WSGI development server at http://127.0.0.1:8000/
+Starting WSGI development server at http://127.0.0.1:8001/
 Quit the server with CONTROL-C.
 
 WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
@@ -68,7 +68,7 @@ Performing system checks...
 System check identified no issues (0 silenced).
 October 08, 2026 - 12:09:36
 Django version 6.1.1, using settings 'config.settings.local'
-Starting WSGI development server at http://127.0.0.1:8000/
+Starting WSGI development server at http://127.0.0.1:8001/
 Quit the server with CONTROL-C.
 
 WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
@@ -84,7 +84,7 @@ Performing system checks...
 System check identified no issues (0 silenced).
 October 08, 2026 - 12:10:52
 Django version 6.1.1, using settings 'config.settings.local'
-Starting WSGI development server at http://127.0.0.1:8000/
+Starting WSGI development server at http://127.0.0.1:8001/
 Quit the server with CONTROL-C.
 
 WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
@@ -96,7 +96,7 @@ Performing system checks...
 System check identified no issues (0 silenced).
 October 08, 2026 - 12:11:09
 Django version 6.1.1, using settings 'config.settings.local'
-Starting WSGI development server at http://127.0.0.1:8000/
+Starting WSGI development server at http://127.0.0.1:8001/
 Quit the server with CONTROL-C.
 
 WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
@@ -113,7 +113,7 @@ Performing system checks...
 System check identified no issues (0 silenced).
 October 08, 2026 - 12:11:46
 Django version 6.1.1, using settings 'config.settings.local'
-Starting WSGI development server at http://127.0.0.1:8000/
+Starting WSGI development server at http://127.0.0.1:8001/
 Quit the server with CONTROL-C.
 
 WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
